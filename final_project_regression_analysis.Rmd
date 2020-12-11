@@ -1,0 +1,15 @@
+---
+title: "P8130 Final Project - Group 19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+```
+
+Load the dataset
+
+```{r}
+hate_crime = read_csv("data/HateCrimes.csv")
+```
+
