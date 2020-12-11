@@ -5,6 +5,12 @@ output: html_document
 
 ```{r setup, include=FALSE}
 library(tidyverse)
+library(dplyr)
+library(HH)
+library(leaps)
+library(corrplot) 
+library(faraway)
+library(broom)
 ```
 
 Load the dataset
@@ -13,3 +19,33 @@ Load the dataset
 hate_crime = read_csv("data/HateCrimes.csv")
 ```
 
+
+# Data Exploration: Descriptive statistics and visualization
+
+
+Explore the distribution of the outcome and consider potential transformations if needed.\
+
+
+
+Identify states with unusual rates and consider them as potential outliers/influential points. \
+
+
+
+# Income inequality was the main predictor of hate crime rates
+
+
+Verify if this association holds true, as well as explore associations of all the other covariates mentioned above and draw your own conclusions.\
+
+
+
+Multicollinearity\
+
+
+
+Interaction between variables (e.g., urbanization), fit stratified models if the case. \
+
+
+
+# Model diagnostics 
+
+Check model assumptions and goodness of fit
