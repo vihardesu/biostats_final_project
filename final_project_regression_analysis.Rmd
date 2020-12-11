@@ -23,29 +23,29 @@ hate_crime = read_csv("data/HateCrimes.csv")
 # Data Exploration: Descriptive statistics and visualization
 
 
-Explore the distribution of the outcome and consider potential transformations if needed.\
+Explore the distribution of the outcome and consider potential transformations if needed.(Vihar Desu)\
 
 
 
-Identify states with unusual rates and consider them as potential outliers/influential points. \
+Identify states with unusual rates and consider them as potential outliers/influential points. (Jyoti) \
 
 
 
 # Income inequality was the main predictor of hate crime rates
 
 
-Verify if this association holds true, as well as explore associations of all the other covariates mentioned above and draw your own conclusions.\
+Verify if this association holds true, as well as explore associations of all the other covariates mentioned above and draw your own conclusions.(Linh)\
 
 
 
-Multicollinearity\
+Multicollinearity (Nikhita)\
 
 
 
-Interaction between variables (e.g., urbanization), fit stratified models if the case. \
+Interaction between variables (e.g., urbanization), fit stratified models if the case. (Yanzhe Ma)\
 
 
 
 # Model diagnostics 
 
-Check model assumptions and goodness of fit
+Check model assumptions and goodness of fit (Vihar Desu)
