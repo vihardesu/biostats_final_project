@@ -34,6 +34,7 @@ library(leaps)
 library(corrplot) 
 library(faraway)
 library(broom)
+library(ggplot2)
 ```
 
 ##### Load Data Set
@@ -97,10 +98,80 @@ Verify if this association holds true, as well as explore associations of all th
 Multicollinearity (Nikhita)\
 
 
+Yanzhe Ma (TBC, before transformation)
+```{r, include=FALSE}
+#Low=0,High=1
+hate_crime1 = hate_crime
+hate_crime1$unemployment=factor(hate_crime1$unemployment,levels=c("low","high"))
+hate_crime1$unemployment=as.numeric(hate_crime1$unemployment)-1
+hate_crime1$urbanization=factor(hate_crime1$urbanization,levels=c("low","high"))
+hate_crime1$urbanization=as.numeric(hate_crime1$urbanization)-1
+hate_crime1$hate_crimes_per_100k_splc=as.numeric(hate_crime1$hate_crimes_per_100k_splc)
+hate_crimedf=dplyr::select(hate_crime1,-1)
 
-Interaction between variables (e.g., urbanization), fit stratified models if the case. (Yanzhe Ma)\
+#Check the N/A values and omit
+is.na.data.frame(hate_crimedf)
+hate_crimedf=na.omit(hate_crimedf)
+```
 
+##### Interaction between income equality and unemployment 
+```{r}
+#Scatter plot - Hate_crime_per_100k_splc vs. gini index by unemploymnet 
+ggplot(hate_crimedf, aes(x=gini_index, y=hate_crimes_per_100k_splc, colour=factor(unemployment))) +         
+  geom_point(size=2) +                                                                     
+  geom_smooth(method="lm", se=F,                                          
+              aes(group = factor(unemployment),                                  
+                  color = factor(unemployment))) +                                        
+  labs(title="Scatterplot of Hate crime per 100k people vs. income equality by unemploymnet status", 
+       x="gini index", y="hate crime per 100k people") +
+  scale_color_manual(name="Unemployment", labels = c("Low", "High"), values = c("blue", "red"))    
+reg1<-lm(hate_crimes_per_100k_splc ~ gini_index*factor(unemployment), data = hate_crimedf)
+summary(reg1)
+```
 
+There is no significant interaction at 5% significance level. The relationship between hate crime per 100k people and income equality does not vary bt unemployment status.
+Hence, stratified analysis is not included.
+
+```{r, echo=FALSE, include=FALSE}
+#low employment 
+lowempdf<-filter(hate_crimedf, unemployment=="0") 
+lowempreg<-lm(hate_crimes_per_100k_splc ~ gini_index, data=lowempdf)
+summary(lowempreg)
+# high employment 
+highempdf<-filter(hate_crimedf, unemployment=="1") 
+highempreg<-lm(hate_crimes_per_100k_splc ~ gini_index, data=highempdf)
+summary(highempreg)
+```
+
+##### Interaction between income equality and urbanization 
+```{r}
+#Scatter plot - Hate_crime_per_100k_splc vs. gini index by urbanization 
+ggplot(hate_crimedf, aes(x=gini_index, y=hate_crimes_per_100k_splc, colour=factor(urbanization))) +         
+  geom_point(size=2) +                                                                     
+  geom_smooth(method="lm", se=F,                                          
+              aes(group = factor(urbanization),                                  
+                  color = factor(urbanization))) +                                        
+  labs(title="Scatterplot of Hate crime per 100k people vs. income equality by urbanization status", 
+       x="gini index", y="hate crime per 100k people") +
+  scale_color_manual(name="Urbanization", labels = c("Low", "High"), values = c("blue", "red"))    
+reg2<-lm(hate_crimes_per_100k_splc ~ gini_index*factor(urbanization), data = hate_crimedf)
+summary(reg2)
+```
+
+There is no significant interaction at 5% significance level.The relationship between hate crime per 100k people and income equality does not vary by urbanization status.
+Hence, stratified analysis is not included.
+
+```{r, echo=FALSE, include=FALSE}
+#Stratified analysis
+#low urbanization
+lowurdf<-filter(hate_crimedf, urbanization=="0") 
+lowurreg<-lm(hate_crimes_per_100k_splc ~ gini_index, data=lowurdf)
+summary(lowurreg)
+#high urbanization 
+highurdf<-filter(hate_crimedf, urbanization=="1") 
+highurreg<-lm(hate_crimes_per_100k_splc ~ gini_index, data=highurdf)
+summary(highurreg)
+```
 
 # Model diagnostics 
 
