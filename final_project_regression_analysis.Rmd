@@ -206,7 +206,7 @@ Box-Cox transformation was utilized to find out the recommended transformation. 
 removed_states = hate_crime %>% 
   dplyr::select(-state)
 
-fit = lm(hate_crimes_per_100k_splc ~ ., data = h)
+fit = lm(hate_crimes_per_100k_splc ~ ., data = removed_states)
 fit %>% MASS::boxcox()
 ```
 
@@ -242,13 +242,20 @@ hate_crime %>%
   geom_point(aes(color = state)) +
   geom_smooth(method = "lm", se = F, color = "red") +
   theme(axis.text.x = element_text(angle = 90),
-        legend.position = "none")
+        legend.position = "none") +
+  labs(
+    title = "Outlier Analysis of 50 US States",
+    x = "State",
+    y = "Hate Crime Rate per 100,000 Population",
+    caption = "Distribution of Hate Crime Rates (50 US States)"
+  ) 
 ```
 
 ## Associations b/w Predictors and Hate Crime Rate
 
 We verify if the association between income inequality (median household income in this case), holds true, as well as explore associations of all the other covariates mentioned above and draw your own conclusions about each predictor's significance.  
 
+##### Correlation Matrix of Predictors and Outcome
 ```{r, fig.width = 12, fig.height = 12}
 hate_crime %>% 
   dplyr::select(-state,-unemployment,-urbanization) %>% 
