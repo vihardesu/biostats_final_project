@@ -6,7 +6,7 @@ output:
      toc: true
 ---
 
-```{r setup}
+```{r setup, message = FALSE}
 knitr::opts_chunk$set(
   echo = TRUE,
   include = TRUE,
@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
   warning = FALSE,
   fig.width = 6,
   fig.asp = .6,
-  fig.align="center",
+  fig.align = "center",
   out.width = "90%"
 )
 
@@ -32,7 +32,7 @@ library(MASS)
 
 Load Data Set
 ```{r}
-hate_crime = read_csv("data/HateCrimes.csv", col_types="fffdddddd") %>% 
+hate_crime = read_csv("data/HateCrimes.csv", col_types = "fffdddddd") %>% 
   janitor::clean_names()
 ```
 
@@ -72,8 +72,8 @@ summ_table_controls = tableby.control(
 
 table_1 = tableby( ~ unemployment + urbanization + median_household_income + perc_population_with_high_school_degree + perc_non_citizen + gini_index + perc_non_white + hate_crimes_per_100k_splc, 
                    data = hate_crime, 
-                   control= summ_table_controls,
-                   test=FALSE)
+                   control = summ_table_controls,
+                   test = FALSE)
 
 # table1 generate
 summary(table_1, 
@@ -94,7 +94,7 @@ From the histogram below, we observe our outcome distribution has right skewness
 #Histogram of Outcome Distribution
 hate_crime %>% 
   ggplot(aes(x = hate_crimes_per_100k_splc)) + 
-  geom_histogram(color="red", fill="black") + 
+  geom_histogram(color = "red", fill = "black") + 
   labs(
     title = "Distribution of Hate Crime Rates in 50 US States",
     x = "Hate Crime Rate per 100,000 Population",
@@ -106,8 +106,8 @@ hate_crime %>%
 ```{r}
 #QQplot of Outcome Distribution
 hate_crimes_per_100k_splc = hate_crime$hate_crimes_per_100k_splc
-qqnorm(hate_crimes_per_100k_splc, col=2, pch=19, cex=1.5)
-qq_plot = qqline(hate_crimes_per_100k_splc, col = 1,lwd=2,lty=2)
+qqnorm(hate_crimes_per_100k_splc, col = 2, pch = 19, cex = 1.5)
+qq_plot = qqline(hate_crimes_per_100k_splc, col = 1,lwd = 2,lty = 2)
 ```
 
 ##### Shapiro-Wilk Test of Outcome Variable
@@ -143,7 +143,7 @@ hate_crime %>%
   drop_na() %>% 
   dplyr::select(-state,-unemployment,-urbanization) %>% 
   cor() %>% 
-  corrplot::corrplot(method = "circle", type = "upper", diag=FALSE)
+  corrplot::corrplot(method = "circle", type = "upper", diag = FALSE)
 ```
 
 
@@ -157,29 +157,29 @@ Yanzhe Ma (TBC, before transformation)
 ```{r, include=FALSE}
 #Low=0,High=1
 hate_crime1 = hate_crime
-hate_crime1$unemployment=factor(hate_crime1$unemployment,levels=c("low","high"))
-hate_crime1$unemployment=as.numeric(hate_crime1$unemployment)-1
-hate_crime1$urbanization=factor(hate_crime1$urbanization,levels=c("low","high"))
-hate_crime1$urbanization=as.numeric(hate_crime1$urbanization)-1
-hate_crime1$hate_crimes_per_100k_splc=as.numeric(hate_crime1$hate_crimes_per_100k_splc)
-hate_crimedf=dplyr::select(hate_crime1,-1)
+hate_crime1$unemployment = factor(hate_crime1$unemployment,levels = c("low","high"))
+hate_crime1$unemployment = as.numeric(hate_crime1$unemployment) - 1
+hate_crime1$urbanization = factor(hate_crime1$urbanization,levels = c("low","high"))
+hate_crime1$urbanization = as.numeric(hate_crime1$urbanization) - 1
+hate_crime1$hate_crimes_per_100k_splc = as.numeric(hate_crime1$hate_crimes_per_100k_splc)
+hate_crimedf = dplyr::select(hate_crime1,-1)
 #Check the N/A values and omit
 is.na.data.frame(hate_crimedf)
-hate_crimedf=na.omit(hate_crimedf)
+hate_crimedf = na.omit(hate_crimedf)
 ```
 
 ##### Interaction between income equality and unemployment 
 ```{r}
 #Scatter plot - Hate_crime_per_100k_splc vs. gini index by unemploymnet 
-ggplot(hate_crimedf, aes(x=gini_index, y=hate_crimes_per_100k_splc, colour=factor(unemployment))) +         
-  geom_point(size=2) +                                                                     
-  geom_smooth(method="lm", se=F,                                          
+ggplot(hate_crimedf, aes(x = gini_index, y = hate_crimes_per_100k_splc, colour = factor(unemployment))) +         
+  geom_point(size = 2) +                                                                     
+  geom_smooth(method = "lm", se = F,                                          
               aes(group = factor(unemployment),                                  
                   color = factor(unemployment))) +                                        
-  labs(title="Scatterplot of Hate crime per 100k people vs. income equality by unemploymnet status", 
-       x="gini index", y="hate crime per 100k people") +
-  scale_color_manual(name="Unemployment", labels = c("Low", "High"), values = c("blue", "red"))    
-reg1<-lm(hate_crimes_per_100k_splc ~ gini_index*factor(unemployment), data = hate_crimedf)
+  labs(title = "Scatterplot of Hate crime per 100k people vs. income equality by unemploymnet status", 
+       x = "gini index", y = "hate crime per 100k people") +
+  scale_color_manual(name = "Unemployment", labels = c("Low", "High"), values = c("blue", "red"))    
+reg1 <- lm(hate_crimes_per_100k_splc ~ gini_index*factor(unemployment), data = hate_crimedf)
 summary(reg1)
 ```
 
@@ -188,27 +188,27 @@ Hence, stratified analysis is not included.
 
 ```{r, echo=FALSE, include=FALSE}
 #low employment 
-lowempdf<-filter(hate_crimedf, unemployment=="0") 
-lowempreg<-lm(hate_crimes_per_100k_splc ~ gini_index, data=lowempdf)
+lowempdf <- filter(hate_crimedf, unemployment == "0") 
+lowempreg <- lm(hate_crimes_per_100k_splc ~ gini_index, data = lowempdf)
 summary(lowempreg)
 # high employment 
-highempdf<-filter(hate_crimedf, unemployment=="1") 
-highempreg<-lm(hate_crimes_per_100k_splc ~ gini_index, data=highempdf)
+highempdf <- filter(hate_crimedf, unemployment == "1") 
+highempreg <- lm(hate_crimes_per_100k_splc ~ gini_index, data = highempdf)
 summary(highempreg)
 ```
 
 ##### Interaction between income equality and urbanization 
 ```{r}
 #Scatter plot - Hate_crime_per_100k_splc vs. gini index by urbanization 
-ggplot(hate_crimedf, aes(x=gini_index, y=hate_crimes_per_100k_splc, colour=factor(urbanization))) +         
-  geom_point(size=2) +                                                                     
-  geom_smooth(method="lm", se=F,                                          
+ggplot(hate_crimedf, aes(x = gini_index, y = hate_crimes_per_100k_splc, colour = factor(urbanization))) +         
+  geom_point(size = 2) +                                                                     
+  geom_smooth(method = "lm", se = F,                                          
               aes(group = factor(urbanization),                                  
                   color = factor(urbanization))) +                                        
-  labs(title="Scatterplot of Hate crime per 100k people vs. income equality by urbanization status", 
-       x="gini index", y="hate crime per 100k people") +
-  scale_color_manual(name="Urbanization", labels = c("Low", "High"), values = c("blue", "red"))    
-reg2<-lm(hate_crimes_per_100k_splc ~ gini_index*factor(urbanization), data = hate_crimedf)
+  labs(title = "Scatterplot of Hate crime per 100k people vs. income equality by urbanization status", 
+       x = "gini index", y = "hate crime per 100k people") +
+  scale_color_manual(name = "Urbanization", labels = c("Low", "High"), values = c("blue", "red"))    
+reg2 <- lm(hate_crimes_per_100k_splc ~ gini_index*factor(urbanization), data = hate_crimedf)
 summary(reg2)
 ```
 
@@ -218,12 +218,12 @@ Hence, stratified analysis is not included.
 ```{r, echo=FALSE, include=FALSE}
 #Stratified analysis
 #low urbanization
-lowurdf<-filter(hate_crimedf, urbanization=="0") 
-lowurreg<-lm(hate_crimes_per_100k_splc ~ gini_index, data=lowurdf)
+lowurdf <- filter(hate_crimedf, urbanization == "0") 
+lowurreg <- lm(hate_crimes_per_100k_splc ~ gini_index, data = lowurdf)
 summary(lowurreg)
 #high urbanization 
-highurdf<-filter(hate_crimedf, urbanization=="1") 
-highurreg<-lm(hate_crimes_per_100k_splc ~ gini_index, data=highurdf)
+highurdf <- filter(hate_crimedf, urbanization == "1") 
+highurreg <- lm(hate_crimes_per_100k_splc ~ gini_index, data = highurdf)
 summary(highurreg)
 ```
 
