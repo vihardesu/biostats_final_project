@@ -355,3 +355,11 @@ step(hate_crime_fit, direction = "backward")
 
 #lm(hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree + gini_index, data = hate_crime)
 ```
+
+```{r}
+stepwise_log_fit = 
+  lm(log(hate_crimes_per_100k_splc) ~ perc_population_with_high_school_degree + gini_index, data = hate_crime)
+par(mfrow = c(2, 2))
+plot(stepwise_log_fit)
+```
+
