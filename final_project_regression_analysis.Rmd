@@ -1,43 +1,36 @@
 ---
-title: "P8130 Final Project - Group 19"
-output: github_document
+title: "P8130 Final Project"
+date: "12/17/2020"
+output: 
+  html_document: 
+     toc: true
 ---
 
-## Setup
-
-##### General Setup
-```{r general_setup}
+```{r setup}
 knitr::opts_chunk$set(
   echo = TRUE,
   include = TRUE,
   message = FALSE,
-  warning = FALSE
-)
-```
-
-##### Visualizations
-```{r visualiztion_setup}
-knitr::opts_chunk$set(
+  warning = FALSE,
   fig.width = 6,
   fig.asp = .6,
   fig.align="center",
   out.width = "90%"
 )
-```
 
-##### Installations
-```{r installations}
 library(tidyverse)
 library(dplyr)
+library(arsenal)
 library(HH)
 library(leaps)
 library(corrplot) 
 library(faraway)
 library(broom)
 library(ggplot2)
+library(MASS)
 ```
 
-##### Load Data Set
+Load Data Set
 ```{r}
 hate_crime = read_csv("data/HateCrimes.csv", col_types="fffdddddd") %>% 
   janitor::clean_names()
@@ -45,7 +38,53 @@ hate_crime = read_csv("data/HateCrimes.csv", col_types="fffdddddd") %>%
 
 ---
 
-# Data Exploration: Descriptive statistics and visualization
+# Data Exploration: 
+
+## Descriptive statistics: Table 1
+
+
+```{r, echo=FALSE, results="asis"}
+table_labels = list(
+   hate_crimes_per_100k_splc = "Hate crime rate per 100,000 population",
+   unemployment = "Level of unemployment",
+   urbanization = "Level of state urbanization",
+   median_household_income = "Median Household Income",
+   perc_population_with_high_school_degree = "Percent of adults with a high school degree",
+   perc_non_citizen = "Percent of population that are not US citizens",
+   perc_non_white = "Percent of population that are non-white",
+   gini_index = "Income inequality index")
+
+# Table 1 settings
+summ_table_controls = tableby.control(
+  total = F,
+  test = F,
+  numeric.stats = c("meansd", "medianq1q3", "range", "Nmiss"),
+  cat.stats = c("countpct", "Nmiss"),
+  stats.labels = list(
+    meansd = "Mean (SD)",
+    medianq1q3 = "Median (Q1, Q3)",
+    range = "Min - Max",
+    countpct = "N (%)"),
+    Nmiss = "Missing Value"
+  )
+
+# Data Table generation; column separated by Group with rows listing demographics and comorbidities
+
+table_1 = tableby( ~ unemployment + urbanization + median_household_income + perc_population_with_high_school_degree + perc_non_citizen + gini_index + perc_non_white + hate_crimes_per_100k_splc, 
+                   data = hate_crime, 
+                   control= summ_table_controls,
+                   test=FALSE)
+
+# table1 generate
+summary(table_1, 
+        title = "Descriptive Statistics: Hate Crime Rate After 2016 Election",
+        labelTranslations = table_labels,
+        text = T,
+        digits = 2) 
+```
+
+
+## Visualization 
 
 ##### Histogram of Outcome Variable
 
@@ -91,12 +130,28 @@ Identify states with unusual rates and consider them as potential outliers/influ
 # Income inequality was the main predictor of hate crime rates
 
 
-Verify if this association holds true, as well as explore associations of all the other covariates mentioned above and draw your own conclusions.(Linh)\
+#### Verify if this association holds true, as well as explore associations of all the other covariates mentioned above and draw your own conclusions.(Linh)\
 
+```{r, fig.width = 12, fig.height = 12}
+hate_crime %>% 
+  drop_na() %>% 
+  dplyr::select(-state,-unemployment,-urbanization) %>% 
+  cor() %>% 
+  knitr::kable(digits = 2)
+
+hate_crime %>% 
+  drop_na() %>% 
+  dplyr::select(-state,-unemployment,-urbanization) %>% 
+  cor() %>% 
+  corrplot::corrplot(method = "circle", type = "upper", diag=FALSE)
+```
 
 
 Multicollinearity (Nikhita)\
 
+```{r}
+pairs(hate_crime)
+```
 
 Yanzhe Ma (TBC, before transformation)
 ```{r, include=FALSE}
@@ -108,7 +163,6 @@ hate_crime1$urbanization=factor(hate_crime1$urbanization,levels=c("low","high"))
 hate_crime1$urbanization=as.numeric(hate_crime1$urbanization)-1
 hate_crime1$hate_crimes_per_100k_splc=as.numeric(hate_crime1$hate_crimes_per_100k_splc)
 hate_crimedf=dplyr::select(hate_crime1,-1)
-
 #Check the N/A values and omit
 is.na.data.frame(hate_crimedf)
 hate_crimedf=na.omit(hate_crimedf)
@@ -176,3 +230,56 @@ summary(highurreg)
 # Model diagnostics 
 
 Check model assumptions and goodness of fit (Vihar Desu)
+
+```{r}
+hate_crime = 
+  hate_crime %>% 
+  drop_na() %>% 
+  dplyr::select(-state)
+
+hate_crime_fit = lm(hate_crimes_per_100k_splc ~., data = hate_crime)
+summary(hate_crime_fit)
+```
+
+Box-Cox without transformation
+
+```{r}
+hate_crime_fit %>% 
+  MASS::boxcox()
+```
+
+Take log transformation
+
+```{r}
+hate_crime_log_fit = lm(log(hate_crimes_per_100k_splc) ~ . ,
+                    data = hate_crime)
+```
+
+## QQ plot for model with transformation and without transformation
+
+
+```{r}
+par(mfrow = c(1, 2))
+
+# without transformation
+qqnorm(resid(hate_crime_fit), xlab = "Expected Value", ylab = "Residual", main = "")
+qqline(resid(hate_crime_fit))
+title("QQ Plot for Hate crime rate")
+
+# with transformation
+qqnorm(resid(hate_crime_log_fit), xlab = "Expected Value", ylab = "Residual", main = "")
+qqline(resid(hate_crime_log_fit))
+title("QQ Plot for Ln(Hate crime rate)")
+```
+
+Log transformation is better.
+
+# Model Selection
+
+Stepwise selection
+
+```{r}
+step(hate_crime_fit, direction = "backward")
+
+#lm(hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree + gini_index, data = hate_crime)
+```
