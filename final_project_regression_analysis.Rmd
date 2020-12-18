@@ -172,7 +172,7 @@ ln_qqplot = ggplot(hate_crime, aes(sample = log(hate_crimes_per_100k_splc))) + s
 After visual inspection, we observe that our natural log transformation may be a good candidate to re-test our normality assumptions.
 
 ```{r}
-(sqrt_transformation + ln_transformation) / ( sqrt_qqplot + ln_qqplot)
+(sqrt_transformation + ln_transformation) / (sqrt_qqplot + ln_qqplot)
 ```
 
 ##### Shapiro-Wilk Test on our Natural Log Transformation
@@ -185,7 +185,26 @@ shapiro.test(log(hate_crimes_per_100k_splc)) %>%
   knitr::kable("simple", caption = "Shapiro Wilk Test")
 ```
 
-Identify states with unusual rates and consider them as potential outliers/influential points. (Jyoti) 
+### Identify states with unusual rates and consider them as potential outliers/influential points. (Jyoti) 
+
+Identifying states with unusual rates
+
+```{r}
+hate_crime %>%
+ggplot(aes(x = hate_crimes_per_100k_splc, y = state, colors = state)) + geom_col(color = "blue") 
+```
+
+Upon Plotting a column graph of the hate crimes against their respective states, we can see that Wyoming, South Dakota, and North Dakota had no values and District of Columbia, Washington, Oregon, Minnesota, Massachussets and Maine showed relatively large columns.
+
+After Plotting a scatter plot of the same values, it was evident that these states were outliers that influenced the data set.
+
+```{r}
+hate_crime %>%
+  ggplot(aes(y = hate_crimes_per_100k_splc, x = state, colors = state)) + geom_point(aes(color = state)) +
+  geom_smooth(method = "lm", se = F, color = "red")
+```
+
+
 
 
 # Income inequality was the main predictor of hate crime rates
@@ -207,7 +226,9 @@ hate_crime %>%
 ```
 
 
-#### Multicollinearity (Nikhita)\
+### Multicollinearity
+
+(Nikhita)
 
 ```{r}
 # Scatter plot showing associations between numeric variables
