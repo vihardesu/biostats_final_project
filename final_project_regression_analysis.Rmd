@@ -347,6 +347,7 @@ hate_crimedft$gini_index = log2(hate_crimedft$gini_index)
 hate_crimedft$perc_population_with_high_school_degree = log2(hate_crimedft$perc_population_with_high_school_degree)
 ```
 
+
 ##### Interaction between income equality and unemployment 
 
 ```{r}
@@ -363,7 +364,7 @@ ggplot(hate_crimedft,
                 group = factor(unemployment),
                 color = factor(unemployment)
               )) +
-  labs(title = "ln(Hate crime per 100k) people vs. Unemployment Status",
+  labs(title = "Scatterplot of ln(hate crime per 100k people) vs ln(income equality) by Unemployment Status",
        x = "ln(gini index)", y = "ln(hate crime per 100k people)") +
   scale_color_manual(
     name = "Unemployment",
@@ -388,7 +389,7 @@ ggplot(hate_crimedft, aes(x =gini_index, y = ln_hate_crimes_per_100k_splc, colou
   geom_smooth(method = "lm", se = F,                                          
               aes(group = factor(urbanization),                                  
                   color = factor(urbanization))) +                                        
-  labs(title = "ln(Hate crime per 100k people) vs. income equality by urbanization status", 
+  labs(title = "Scatterplot of ln(hate crime per 100k people) vs ln(income equality) by Urbanization Status", 
        x = "ln(gini index)", y = "ln(hate crime per 100k people)") +
   scale_color_manual(name = "Urbanization", labels = c("Low", "High"), values = c("blue", "red"))    
 reg2t <- lm(ln_hate_crimes_per_100k_splc ~ gini_index*factor(urbanization), data = hate_crimedft)
@@ -413,7 +414,7 @@ ggplot(
                 group = factor(unemployment),
                 color = factor(unemployment)
               )) +
-  labs(title = "Scatterplot of Hate crime per 100k people vs. income equality by unemploymnet status",
+  labs(title = "Scatterplot of ln(hate crime per 100k people) vs ln(education level) by Unemployment status",
        x = "ln(percentage of population with high school degree and higher)", y = "ln(hate crime per 100k people)") +
   scale_color_manual(
     name = "Unemployment",
@@ -439,12 +440,13 @@ ggplot(hate_crimedft, aes(x = perc_population_with_high_school_degree, y = ln_ha
   geom_smooth(method = "lm", se = F,                                          
               aes(group = factor(urbanization),                                  
                   color = factor(urbanization))) +                                        
-  labs(title = "Scatterplot of Hate crime per 100k people vs. education level by urbanization status", 
+  labs(title = "Scatterplot of ln(hate crime per 100k people) vs ln(education level) by Urbanization status", 
        x = "ln(percentage of population with high school degree or higher)", y = "ln(hate crime per 100k people)") +
   scale_color_manual(name = "Urbanization", labels = c("Low", "High"), values = c("blue", "red"))    
 reg22t <- lm(ln_hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree*factor(urbanization), data = hate_crimedft)
 summary(reg22t)
 ```
+
 There is no significant interaction at 5% significance level.The relationship between hate crime per 100k people and education level does not vary by urbanization status.
 
 ## Model Selection
