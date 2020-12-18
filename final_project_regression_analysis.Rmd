@@ -251,6 +251,18 @@ hate_crime %>%
   ) 
 ```
 
+##### Check for Influential Points
+```{r}
+# check for influential points
+multi.fit1 = lm(hate_crimes_per_100k_splc ~., data = removed_states)
+influence.measures(multi.fit1)
+stu_res<-rstandard(multi.fit1)
+outliers_y<-stu_res[abs(stu_res)>2.5]
+outliers_y
+par(mfrow = c(2, 2))
+plot(multi.fit1)
+```
+
 ## Associations b/w Predictors and Hate Crime Rate
 
 We verify if the association between income inequality (median household income in this case), holds true, as well as explore associations of all the other covariates mentioned above and draw your own conclusions about each predictor's significance.  
@@ -379,7 +391,6 @@ summary(reg1t)
 
 There is no significant interaction at 5% significance level. The relationship between hate crime per 100k people and income equality does not vary by unemployment status.
 
-
 ##### Interaction between income equality and urbanization 
 
 ```{r}
@@ -453,7 +464,6 @@ There is no significant interaction at 5% significance level.The relationship be
 
 Fit model with all predictors
 ```{r}
-
 hate_crime_no_dc <- hate_crime[c(-9),] %>%
   dplyr::select(-state)
 
