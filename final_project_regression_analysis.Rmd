@@ -6,9 +6,9 @@ output:
      toc: true
 ---
 
-# Setup
+## Setup
 
-## Chunk Options
+##### Chunk Options
 ```{r setup, message = FALSE}
 knitr::opts_chunk$set(
   echo = TRUE,
@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-## Installations
+##### Installations
 ```{r}
 library(tidyverse)
 library(dplyr)
@@ -38,7 +38,7 @@ library(MASS)
 library(patchwork)
 ```
 
-## Load Data Set
+##### Load Data Set
 ```{r}
 hate_crime = read_csv("data/HateCrimes.csv", col_types = "fffdddddd") %>%
   janitor::clean_names() %>%
@@ -47,7 +47,7 @@ hate_crime = read_csv("data/HateCrimes.csv", col_types = "fffdddddd") %>%
 
 ---
 
-# Data Exploration 
+## Data Exploration 
 
 ## Descriptive Summary of Data
 ```{r, echo=FALSE, results="asis"}
