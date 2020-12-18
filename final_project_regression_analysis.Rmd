@@ -78,11 +78,16 @@ table_1 = tableby( ~ unemployment + urbanization + median_household_income + per
                    test = FALSE)
 
 # table1 generate
-summary(table_1, 
+tab_summary = summary(table_1, 
         title = "Descriptive Statistics: Hate Crime Rate After 2016 Election",
         labelTranslations = table_labels,
         text = T,
         digits = 2) 
+tab_summary
+
+# code to save output in .csv format
+#write.csv(tab_summary, './table1.csv')
+
 ```
 
 
