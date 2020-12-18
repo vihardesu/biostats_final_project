@@ -36,6 +36,7 @@ library(broom)
 library(ggplot2)
 library(MASS)
 library(patchwork)
+library(caret)
 ```
 
 ##### Load Data Set
@@ -197,6 +198,18 @@ shapiro.test(log(hate_crimes_per_100k_splc)) %>%
   knitr::kable("simple", caption = "Shapiro Wilk Test")
 ```
 
+##### Box Cox Analysis
+
+Box-Cox transformation was utilized to find out the recommended transformation. The optimal value of lambda is near 0, indicating that a natural logarithm transformation of the outcome is best for further analysis.
+
+```{r}
+removed_states = hate_crime %>% 
+  dplyr::select(-state)
+
+fit = lm(hate_crimes_per_100k_splc ~ ., data = h)
+fit %>% MASS::boxcox()
+```
+
 ##### Adding Linear Transformation
 ```{r}
 hate_crime = hate_crime %>% 
@@ -209,11 +222,11 @@ hate_crime = hate_crime %>%
 
 ```{r}
 hate_crime %>%
-  ggplot(aes(x = ln_hate_crimes_per_100k_splc, y = state, colors = state)) + 
+  ggplot(aes(x = hate_crimes_per_100k_splc, y = state, colors = state)) + 
   geom_col(color = "blue") +
   labs(
     title = "Outlier Analysis of 50 US States",
-    x = "ln(Hate Crime Rate per 100,000 Population)",
+    x = "Hate Crime Rate per 100,000 Population",
     y = "Frequency of Distribution",
     caption = "Distribution of Hate Crime Rates (50 US States)"
   ) 
@@ -427,7 +440,7 @@ summary(reg22t)
 ```
 There is no significant interaction at 5% significance level.The relationship between hate crime per 100k people and education level does not vary by urbanization status.
 
-# Model Selection
+## Model Selection
 
 Fit model with all predictors
 ```{r}
@@ -456,6 +469,24 @@ stepwise_log_fit = lm(
 #Check model assumptions:
 par(mfrow = c(2, 2))
 plot(stepwise_log_fit)
+```
+
+##### Model Validation
+```{r}
+set.seed(1)
+
+data_train <- trainControl(method = "cv", number = 5)
+
+model_caret <-
+  train(
+    log(hate_crimes_per_100k_splc) ~ perc_population_with_high_school_degree + gini_index,
+    data = hate_crime_no_dc,
+    trControl = data_train,
+    method = 'lm',
+    na.action = na.pass
+  )
+
+model_caret
 ```
 
 
