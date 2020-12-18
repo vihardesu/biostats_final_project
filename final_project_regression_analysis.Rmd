@@ -253,24 +253,6 @@ hate_crimedft$perc_population_with_high_school_degree=log2(hate_crimedft$perc_po
 
 ##### Interaction between income equality and unemployment 
 
-###### Without transformation
-```{r}
-#Scatter plot - Hate_crime_per_100k_splc vs. gini index by unemploymnet 
-ggplot(hate_crimedf, aes(x = gini_index, y = hate_crimes_per_100k_splc, colour = factor(unemployment))) +         
-  geom_point(size = 2) +                                                                     
-  geom_smooth(method = "lm", se = F,                                          
-              aes(group = factor(unemployment),                                  
-                  color = factor(unemployment))) +                                        
-  labs(title = "Scatterplot of Hate crime per 100k people vs. income equality by unemploymnet status", 
-       x = "gini index", y = "hate crime per 100k people") +
-  scale_color_manual(name = "Unemployment", labels = c("Low", "High"), values = c("blue", "red"))    
-reg1 <- lm(hate_crimes_per_100k_splc ~ gini_index*factor(unemployment), data = hate_crimedf)
-summary(reg1)
-```
-
-There is no significant interaction at 5% significance level. The relationship between hate crime per 100k people and income equality does not vary by unemployment status.
-
-###### With natural log transformation
 ```{r}
 #Scatter plot - Hate_crime_per_100k_splc vs. gini index by unemploymnet 
 ggplot(hate_crimedft, aes(x =gini_index, y = hate_crimes_per_100k_splc, colour = factor(unemployment))) +         
@@ -287,37 +269,9 @@ summary(reg1t)
 
 There is no significant interaction at 5% significance level. The relationship between hate crime per 100k people and income equality does not vary by unemployment status.
 
-```{r, echo=FALSE, include=FALSE}
-#low employment 
-lowempdf <- filter(hate_crimedf, unemployment == "0") 
-lowempreg <- lm(hate_crimes_per_100k_splc ~ gini_index, data = lowempdf)
-summary(lowempreg)
-# high employment 
-highempdf <- filter(hate_crimedf, unemployment == "1") 
-highempreg <- lm(hate_crimes_per_100k_splc ~ gini_index, data = highempdf)
-summary(highempreg)
-```
 
 ##### Interaction between income equality and urbanization 
 
-###### Without natural log transformation
-```{r}
-#Scatter plot - Hate_crime_per_100k_splc vs. gini index by urbanization 
-ggplot(hate_crimedf, aes(x = gini_index, y = hate_crimes_per_100k_splc, colour = factor(urbanization))) +         
-  geom_point(size = 2) +                                                                     
-  geom_smooth(method = "lm", se = F,                                          
-              aes(group = factor(urbanization),                                  
-                  color = factor(urbanization))) +                                        
-  labs(title = "Scatterplot of Hate crime per 100k people vs. income equality by urbanization status", 
-       x = "gini index", y = "hate crime per 100k people") +
-  scale_color_manual(name = "Urbanization", labels = c("Low", "High"), values = c("blue", "red"))    
-reg2 <- lm(hate_crimes_per_100k_splc ~ gini_index*factor(urbanization), data = hate_crimedf)
-summary(reg2)
-```
-
-There is no significant interaction at 5% significance level.The relationship between hate crime per 100k people and income equality does not vary by urbanization status.
-
-###### With natural log transformation
 ```{r}
 #Scatter plot - Hate_crime_per_100k_splc vs. gini index by urbanization 
 ggplot(hate_crimedft, aes(x =gini_index, y = hate_crimes_per_100k_splc, colour = factor(urbanization))) +         
@@ -334,38 +288,9 @@ summary(reg2t)
 
 There is no significant interaction at 5% significance level.The relationship between hate crime per 100k people and income equality does not vary by urbanization status.
 
-```{r, echo=FALSE, include=FALSE}
-#Stratified analysis
-#low urbanization
-lowurdf <- filter(hate_crimedf, urbanization == "0") 
-lowurreg <- lm(hate_crimes_per_100k_splc ~ gini_index, data = lowurdf)
-summary(lowurreg)
-#high urbanization 
-highurdf <- filter(hate_crimedf, urbanization == "1") 
-highurreg <- lm(hate_crimes_per_100k_splc ~ gini_index, data = highurdf)
-summary(highurreg)
-```
 
 ##### Interaction between education level and unemployment 
 
-###### Without transformation
-```{r}
-#Scatter plot - Hate_crime_per_100k_splc vs. education level by unemployment 
-ggplot(hate_crimedf, aes(x = perc_population_with_high_school_degree, y = hate_crimes_per_100k_splc, colour = factor(unemployment))) +         
-  geom_point(size = 2) +                                                                     
-  geom_smooth(method = "lm", se = F,                                          
-              aes(group = factor(unemployment),                                  
-                  color = factor(unemployment))) +                                        
-  labs(title = "Scatterplot of Hate crime per 100k people vs. education level by unemploymnet status", 
-       x = "percentage of population with high school degree and higher", y = "hate crime per 100k people") +
-  scale_color_manual(name = "Unemployment", labels = c("Low", "High"), values = c("blue", "red"))    
-reg11 <- lm(hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree*factor(unemployment), data = hate_crimedf)
-summary(reg11)
-```
-
-There is no significant interaction at 5% significance level. The relationship between hate crime per 100k people and education level does not vary by unemployment status.
-
-###### With natural log transformation
 ```{r}
 #Scatter plot - Hate_crime_per_100k_splc vs. gini index by unemploymnet 
 ggplot(hate_crimedft, aes(x =perc_population_with_high_school_degree, y = hate_crimes_per_100k_splc, colour = factor(unemployment))) +         
@@ -382,37 +307,9 @@ summary(reg11t)
 
 There is no significant interaction at 5% significance level. The relationship between hate crime per 100k people and education level does not vary by unemployment status.
 
-```{r, echo=FALSE, include=FALSE}
-#low employment 
-lowempdf <- filter(hate_crimedf, unemployment == "0") 
-lowempreg <- lm(hate_crimes_per_100k_splc ~ gini_index, data = lowempdf)
-summary(lowempreg)
-# high employment 
-highempdf <- filter(hate_crimedf, unemployment == "1") 
-highempreg <- lm(hate_crimes_per_100k_splc ~ gini_index, data = highempdf)
-summary(highempreg)
-```
 
 ##### Interaction between education level and urbanization 
 
-###### Without natural log transformation
-```{r}
-#Scatter plot - Hate_crime_per_100k_splc vs. education level by urbanization 
-ggplot(hate_crimedf, aes(x = perc_population_with_high_school_degree, y = hate_crimes_per_100k_splc, colour = factor(urbanization))) +         
-  geom_point(size = 2) +                                                                     
-  geom_smooth(method = "lm", se = F,                                          
-              aes(group = factor(urbanization),                                  
-                  color = factor(urbanization))) +                                        
-  labs(title = "Scatterplot of Hate crime per 100k people vs.education level by urbanization status", 
-       x = "percentage of population with high school degree or higher", y = "hate crime per 100k people") +
-  scale_color_manual(name = "Urbanization", labels = c("Low", "High"), values = c("blue", "red"))    
-reg22 <- lm(hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree*factor(urbanization), data = hate_crimedf)
-summary(reg22)
-```
-
-There is no significant interaction at 5% significance level.The relationship between hate crime per 100k people and education level does not vary by urbanization status.
-
-###### With natural log transformation
 ```{r}
 #Scatter plot - Hate_crime_per_100k_splc vs. education level by urbanization 
 ggplot(hate_crimedft, aes(x = perc_population_with_high_school_degree, y = hate_crimes_per_100k_splc, colour = factor(urbanization))) +         
@@ -428,18 +325,6 @@ summary(reg22t)
 ```
 
 There is no significant interaction at 5% significance level.The relationship between hate crime per 100k people and education level does not vary by urbanization status.
-
-```{r, echo=FALSE, include=FALSE}
-#Stratified analysis
-#low urbanization
-lowurdf <- filter(hate_crimedf, urbanization == "0") 
-lowurreg <- lm(hate_crimes_per_100k_splc ~ gini_index, data = lowurdf)
-summary(lowurreg)
-#high urbanization 
-highurdf <- filter(hate_crimedf, urbanization == "1") 
-highurreg <- lm(hate_crimes_per_100k_splc ~ gini_index, data = highurdf)
-summary(highurreg)
-```
 
 # Model diagnostics 
 
