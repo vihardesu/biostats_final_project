@@ -123,7 +123,7 @@ shapiro.test(hate_crimes_per_100k_splc) %>%
 
 ##### Outcome Translation to fit Normality (Vihar)
 
-Identify states with unusual rates and consider them as potential outliers/influential points. (Jyoti) \
+Identify states with unusual rates and consider them as potential outliers/influential points. (Jyoti) 
 
 
 
@@ -141,16 +141,27 @@ hate_crime %>%
 
 hate_crime %>% 
   drop_na() %>% 
-  dplyr::select(-state,-unemployment,-urbanization) %>% 
+  dplyr::select(-state,-unemployment,-urbanization) %>%  #removing factor variables
   cor() %>% 
   corrplot::corrplot(method = "circle", type = "upper", diag = FALSE)
 ```
 
 
-Multicollinearity (Nikhita)\
+#### Multicollinearity (Nikhita)\
 
 ```{r}
-pairs(hate_crime)
+# Scatter plot showing associations between numeric variables
+
+hate_crime %>%
+  dplyr::select(-state,-unemployment,-urbanization) %>%
+  pairs()
+  
+
+```
+
+Calcu
+```{r}
+
 ```
 
 Yanzhe Ma (TBC, before transformation)
