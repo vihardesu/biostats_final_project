@@ -194,7 +194,7 @@ hate_crime %>%
 ggplot(aes(x = hate_crimes_per_100k_splc, y = state, colors = state)) + geom_col(color = "blue") 
 ```
 
-Upon Plotting a column graph of the hate crimes against their respective states, we can see that Wyoming, South Dakota, and North Dakota had no values and District of Columbia, Washington, Oregon, Minnesota, Massachussets and Maine showed relatively large columns.
+Upon Plotting a column graph of the hate crimes against their respective states, we can see that Wyoming, South Dakota, and North Dakota had no values and District of Columbia, Washington, Oregon, Minnesota, Massachusetts and Maine showed relatively large columns.
 
 After Plotting a scatter plot of the same values, it was evident that these states were outliers that influenced the data set.
 
@@ -203,7 +203,6 @@ hate_crime %>%
   ggplot(aes(y = hate_crimes_per_100k_splc, x = state, colors = state)) + geom_point(aes(color = state)) +
   geom_smooth(method = "lm", se = F, color = "red")
 ```
-
 
 
 
