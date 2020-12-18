@@ -156,10 +156,9 @@ hate_crime %>%
   dplyr::select(-state,-unemployment,-urbanization) %>%
   pairs()
   
-
 ```
 
-Calculating VIF for all the predictors
+#### Calculating VIF for all the predictors
 
 ```{r}
 hate_crime_tidy = hate_crime %>% drop_na()
@@ -170,7 +169,9 @@ mult_fit <- lm(hate_crimes_per_100k_splc ~ unemployment + urbanization + median_
 vif(mult_fit) %>% knitr::kable()
 ```
 
-Yanzhe Ma (TBC, before transformation)
+All the predictors have a VIF below 5. This suggests that it would not be problematic to include them in the construction of the model. However, the correlation analysis shows that variables `perc_non_white` and `perc_non_citizen` have a moderate linear relationship with a correlation coefficient of 0.75.
+
+###Yanzhe Ma (TBC, before transformation)
 ```{r, include=FALSE}
 #Low=0,High=1
 hate_crime1 = hate_crime
