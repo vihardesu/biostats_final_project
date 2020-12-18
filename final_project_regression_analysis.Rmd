@@ -425,88 +425,38 @@ ggplot(hate_crimedft, aes(x = perc_population_with_high_school_degree, y = ln_ha
 reg22t <- lm(ln_hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree*factor(urbanization), data = hate_crimedft)
 summary(reg22t)
 ```
-
 There is no significant interaction at 5% significance level.The relationship between hate crime per 100k people and education level does not vary by urbanization status.
-
-## Model diagnostics 
-
-Check model assumptions and goodness of fit (Vihar Desu)
-
-```{r}
-hate_crime = 
-  hate_crime %>% 
-  drop_na() %>% 
-  dplyr::select(-state)
-
-hate_crime_fit = lm(hate_crimes_per_100k_splc ~., data = hate_crime)
-summary(hate_crime_fit)
-```
-
-Box-Cox without transformation
-
-```{r}
-hate_crime_fit %>% 
-  MASS::boxcox()
-```
-
-Take log transformation
-
-```{r}
-hate_crime_log_fit = lm(log(hate_crimes_per_100k_splc) ~ . ,
-                    data = hate_crime)
-```
-
-## QQ plot for model with transformation and without transformation
-
-```{r}
-par(mfrow = c(1, 2))
-
-# without transformation
-qqnorm(resid(hate_crime_fit), xlab = "Expected Value", ylab = "Residual", main = "")
-qqline(resid(hate_crime_fit))
-title("QQ Plot for Hate crime rate")
-
-# with transformation
-qqnorm(resid(hate_crime_log_fit), xlab = "Expected Value", ylab = "Residual", main = "")
-qqline(resid(hate_crime_log_fit))
-title("QQ Plot for Ln(Hate crime rate)")
-```
-
-Log transformation is better.
 
 # Model Selection
 
-Stepwise selection
-
+Fit model with all predictors
 ```{r}
-step(hate_crime_fit, direction = "backward")
 
-#lm(hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree + gini_index, data = hate_crime)
+hate_crime_no_dc <- hate_crime[c(-9),] %>%
+  dplyr::select(-state)
+
+mult.fit <- lm(log(hate_crimes_per_100k_splc) ~ ., data = hate_crime_no_dc)
+step(mult.fit, direction='both')
 ```
 
+Based on the results of stepwise procedure, we choose model with 2 predictors: percent of adults 25 and older with a high school degreee and gini index.  
+  
+##### Fit MLR based on Stepwise Model Result
+
 ```{r}
-stepwise_log_fit = 
-  lm(log(hate_crimes_per_100k_splc) ~ perc_population_with_high_school_degree + gini_index, data = hate_crime)
+stepwise_log_fit = lm(
+  log(hate_crimes_per_100k_splc) ~ perc_population_with_high_school_degree + gini_index,
+  data = hate_crime_no_dc
+)
+```
+
+## Model Diagnostics
+
+```{r}
+#Check model assumptions:
 par(mfrow = c(2, 2))
 plot(stepwise_log_fit)
 ```
 
-```{r}
-hate_crime_no_dc = 
-  hate_crime[c(-9),]
-```
 
-Fit the model without DC
 
-```{r}
-
-hate_crime_fit_no_dc = lm(log(hate_crimes_per_100k_splc) ~ . , data = hate_crime_no_dc)
-step(hate_crime_fit_no_dc, direction = "backward")
-
-stepwise_log_fit_no_dc = 
-  lm(log(hate_crimes_per_100k_splc) ~ perc_population_with_high_school_degree + gini_index, 
-     data = hate_crime_no_dc)
-
-par(mfrow = c(2, 2))
-plot(stepwise_log_fit_no_dc)
-```
