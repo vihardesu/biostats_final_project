@@ -159,9 +159,15 @@ hate_crime %>%
 
 ```
 
-Calcu
-```{r}
+Calculating VIF for all the predictors
 
+```{r}
+hate_crime_tidy = hate_crime %>% drop_na()
+
+# fitting MLR model on tidy data without state variable
+mult_fit <- lm(hate_crimes_per_100k_splc ~ unemployment + urbanization + median_household_income + perc_population_with_high_school_degree + perc_non_citizen + gini_index + perc_non_white, data = hate_crime_tidy)
+
+vif(mult_fit) %>% knitr::kable()
 ```
 
 Yanzhe Ma (TBC, before transformation)
