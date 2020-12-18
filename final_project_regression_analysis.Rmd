@@ -6,6 +6,9 @@ output:
      toc: true
 ---
 
+# Setup
+
+## Chunk Options
 ```{r setup, message = FALSE}
 knitr::opts_chunk$set(
   echo = TRUE,
@@ -17,13 +20,16 @@ knitr::opts_chunk$set(
   fig.align = "center",
   out.width = "90%"
 )
+```
 
+## Installations
+```{r}
 library(tidyverse)
 library(dplyr)
 library(arsenal)
 library(HH)
 library(leaps)
-library(corrplot) 
+library(corrplot)
 library(faraway)
 library(ggpubr)
 library(broom)
@@ -32,31 +38,31 @@ library(MASS)
 library(patchwork)
 ```
 
-Load Data Set
+## Load Data Set
 ```{r}
-hate_crime = read_csv("data/HateCrimes.csv", col_types = "fffdddddd") %>% 
-  janitor::clean_names() %>% 
+hate_crime = read_csv("data/HateCrimes.csv", col_types = "fffdddddd") %>%
+  janitor::clean_names() %>%
   drop_na()
 ```
 
 ---
 
-# Data Exploration: 
+# Data Exploration 
 
-## Descriptive statistics: Table 1
-
+## Descriptive Summary of Data
 ```{r, echo=FALSE, results="asis"}
 table_labels = list(
-   hate_crimes_per_100k_splc = "Hate crime rate per 100,000 population",
-   unemployment = "Level of unemployment",
-   urbanization = "Level of state urbanization",
-   median_household_income = "Median Household Income",
-   perc_population_with_high_school_degree = "Percent of adults with a high school degree",
-   perc_non_citizen = "Percent of population that are not US citizens",
-   perc_non_white = "Percent of population that are non-white",
-   gini_index = "Income inequality index")
+  hate_crimes_per_100k_splc = "Hate crime rate per 100,000 population",
+  unemployment = "Level of unemployment",
+  urbanization = "Level of state urbanization",
+  median_household_income = "Median Household Income",
+  perc_population_with_high_school_degree = "Percent of adults with a high school degree",
+  perc_non_citizen = "Percent of population that are not US citizens",
+  perc_non_white = "Percent of population that are non-white",
+  gini_index = "Income inequality index"
+)
 
-# Table 1 settings
+# Table 1 Settings
 summ_table_controls = tableby.control(
   total = F,
   test = F,
@@ -66,32 +72,37 @@ summ_table_controls = tableby.control(
     meansd = "Mean (SD)",
     medianq1q3 = "Median (Q1, Q3)",
     range = "Min - Max",
-    countpct = "N (%)"),
-    Nmiss = "Missing Value"
-  )
+    countpct = "N (%)"
+  ),
+  Nmiss = "Missing Value"
+)
 
-# Data Table generation; column separated by Group with rows listing demographics and comorbidities
+# Data Table generation
+# Column separated by group with rows listing demographics and comorbidities
 
-table_1 = tableby( ~ unemployment + urbanization + median_household_income + perc_population_with_high_school_degree + perc_non_citizen + gini_index + perc_non_white + hate_crimes_per_100k_splc, 
-                   data = hate_crime, 
-                   control = summ_table_controls,
-                   test = FALSE)
+table_1 = tableby(
+  ~ unemployment + urbanization + median_household_income + perc_population_with_high_school_degree + perc_non_citizen + gini_index + perc_non_white + hate_crimes_per_100k_splc,
+  data = hate_crime,
+  control = summ_table_controls,
+  test = FALSE
+)
 
-# table1 generate
-tab_summary = summary(table_1, 
-        title = "Descriptive Statistics: Hate Crime Rate After 2016 Election",
-        labelTranslations = table_labels,
-        text = T,
-        digits = 2) 
+#Generate Table 1
+tab_summary = summary(
+  table_1,
+  title = "Descriptive Statistics: Hate Crime Rate After 2016 Election",
+  labelTranslations = table_labels,
+  text = T,
+  digits = 2
+)
+
 tab_summary
 
-# code to save output in .csv format
+#Code to save output in .csv format
 #write.csv(tab_summary, './table1.csv')
-
 ```
 
-
-## Visualization 
+## Outcome Distribution
 
 ##### Histogram of Outcome Variable
 
@@ -110,6 +121,7 @@ hate_crime %>%
 ```
 
 ##### QQ Plot of Outcome Variable
+
 ```{r}
 #QQplot of Outcome Distribution
 hate_crimes_per_100k_splc = hate_crime$hate_crimes_per_100k_splc
@@ -133,7 +145,6 @@ shapiro.test(hate_crimes_per_100k_splc) %>%
 We apply a square root transformation and a natural log transformation to our outcome distribution, and compare the results of the data.
 
 ```{r}
-
 sqrt_transformation = hate_crime %>% 
   ggplot(aes(x = sqrt(hate_crimes_per_100k_splc))) + 
   geom_histogram(color = "red", fill = "black") + 
@@ -143,7 +154,8 @@ sqrt_transformation = hate_crime %>%
     y = "Frequency of Distribution",
     caption = "Distribution of Hate Crime Rates ( 50 US States)")
 
-sqrt_qqplot = ggplot(hate_crime, aes(sample = sqrt(hate_crimes_per_100k_splc))) + stat_qq() + stat_qq_line() + 
+sqrt_qqplot = ggplot(hate_crime, aes(sample = sqrt(hate_crimes_per_100k_splc))) +
+  stat_qq() + stat_qq_line() + 
   labs(
     title = "QQ Plot of sqrt(Hate Crime Rates) in 50 US States",
     x = "sqrt(Hate Crime Rate per 100,000 Population)",
@@ -185,6 +197,7 @@ shapiro.test(log(hate_crimes_per_100k_splc)) %>%
   knitr::kable("simple", caption = "Shapiro Wilk Test")
 ```
 
+##### Adding Linear Transformation
 ```{r}
 hate_crime = hate_crime %>% 
   mutate(
@@ -192,11 +205,18 @@ hate_crime = hate_crime %>%
 )
 ```
 
-### Identifying Outliers
+## Identifying Outliers
 
 ```{r}
 hate_crime %>%
-ggplot(aes(x = hate_crimes_per_100k_splc, y = state, colors = state)) + geom_col(color = "blue") 
+  ggplot(aes(x = ln_hate_crimes_per_100k_splc, y = state, colors = state)) + 
+  geom_col(color = "blue") +
+  labs(
+    title = "Outlier Analysis of 50 US States",
+    x = "ln(Hate Crime Rate per 100,000 Population)",
+    y = "Frequency of Distribution",
+    caption = "Distribution of Hate Crime Rates (50 US States)"
+  ) 
 ```
 
 Upon Plotting a column graph of the hate crimes against their respective states, we can see that Wyoming, South Dakota, and North Dakota had no values and District of Columbia, Washington, Oregon, Minnesota, Massachusetts and Maine showed relatively large columns.
@@ -205,35 +225,32 @@ After Plotting a scatter plot of the same values, it was evident that these stat
 
 ```{r}
 hate_crime %>%
-  ggplot(aes(y = hate_crimes_per_100k_splc, x = state, colors = state)) + geom_point(aes(color = state)) +
+  ggplot(aes(y = hate_crimes_per_100k_splc, x = state, colors = state)) +
+  geom_point(aes(color = state)) +
   geom_smooth(method = "lm", se = F, color = "red") +
   theme(axis.text.x = element_text(angle = 90),
         legend.position = "none")
 ```
 
-# Income inequality was the main predictor of hate crime rates
+## Associations b/w Predictors and Hate Crime Rate
 
-##### Associations b/w Predictors and Hate Crime Rate
-
-Verify if this association holds true, as well as explore associations of all the other covariates mentioned above and draw your own conclusions.(Linh)\
+We verify if the association between income inequality (median household income in this case), holds true, as well as explore associations of all the other covariates mentioned above and draw your own conclusions about each predictor's significance.  
 
 ```{r, fig.width = 12, fig.height = 12}
 hate_crime %>% 
-  drop_na() %>% 
   dplyr::select(-state,-unemployment,-urbanization) %>% 
   cor() %>% 
   knitr::kable(digits = 2)
 
 hate_crime %>% 
-  drop_na() %>% 
   dplyr::select(-state,-unemployment,-urbanization) %>%  #removing factor variables
   cor() %>% 
   corrplot::corrplot(method = "circle", type = "upper", diag = FALSE)
 ```
 
-##### Correlation Plots bw Predictors and Outcome
-```{r}
+##### Correlation Plots between Predictors and Outcome
 
+```{r}
 a = ggscatter(hate_crime, x = "median_household_income", y = "hate_crimes_per_100k_splc", 
           add = "reg.line", conf.int = TRUE, 
           cor.coef = TRUE, cor.method = "pearson",
@@ -266,105 +283,152 @@ From our results, we observe that predictors, "gini_index" and "median_household
 (a + b + c) / (d + e)
 ```
 
-#### Multicollinearity (Nikhita)\
+## Multicollinearity
 
 ```{r}
 # Scatter plot showing associations between numeric variables
-
 hate_crime %>%
   dplyr::select(-state,-unemployment,-urbanization) %>%
   pairs()
-  
 ```
 
-#### Calculating VIF for all the predictors
+##### Calculating VIF for all the predictors
 
 ```{r}
-hate_crime_tidy = hate_crime %>% drop_na()
-
 # fitting MLR model on tidy data without state variable
-mult_fit <- lm(hate_crimes_per_100k_splc ~ unemployment + urbanization + median_household_income + perc_population_with_high_school_degree + perc_non_citizen + gini_index + perc_non_white, data = hate_crime_tidy)
+mult_fit <-
+  lm(
+    ln_hate_crimes_per_100k_splc ~ unemployment + urbanization + median_household_income + perc_population_with_high_school_degree + perc_non_citizen + gini_index + perc_non_white,
+    data = hate_crime
+  )
 
-vif(mult_fit) %>% knitr::kable()
+vif(mult_fit) %>% knitr::kable("simple")
 ```
 
 All the predictors have a VIF below 5. This suggests that it would not be problematic to include them in the construction of the model. However, the correlation analysis shows that variables `perc_non_white` and `perc_non_citizen` have a moderate linear relationship with a correlation coefficient of 0.75.
 
-###Yanzhe Ma (TBC, before transformation)
+## Analysis of Predictor Interactions
+
 ```{r, include=FALSE}
 #Low=0,High=1
 hate_crime1 = hate_crime
-hate_crime1$unemployment = factor(hate_crime1$unemployment,levels = c("low","high"))
+hate_crime1$unemployment = factor(hate_crime1$unemployment, levels = c("low", "high"))
 hate_crime1$unemployment = as.numeric(hate_crime1$unemployment) - 1
-hate_crime1$urbanization = factor(hate_crime1$urbanization,levels = c("low","high"))
+hate_crime1$urbanization = factor(hate_crime1$urbanization, levels = c("low", "high"))
 hate_crime1$urbanization = as.numeric(hate_crime1$urbanization) - 1
 hate_crime1$hate_crimes_per_100k_splc = as.numeric(hate_crime1$hate_crimes_per_100k_splc)
-hate_crimedf = dplyr::select(hate_crime1,-1)
-#Check the N/A values and omit
+hate_crimedf = dplyr::select(hate_crime1, -1)
 is.na.data.frame(hate_crimedf)
 hate_crimedf = na.omit(hate_crimedf)
+hate_crimedft = dplyr::select(hate_crime1, -1)
+hate_crimedft = na.omit(hate_crimedft)
+hate_crimedft$hate_crimes_per_100k_splc = log2(hate_crimedft$hate_crimes_per_100k_splc)
+hate_crimedft$gini_index = log2(hate_crimedft$gini_index)
+hate_crimedft$perc_population_with_high_school_degree = log2(hate_crimedft$perc_population_with_high_school_degree)
 ```
 
 ##### Interaction between income equality and unemployment 
+
 ```{r}
-#Scatter plot - Hate_crime_per_100k_splc vs. gini index by unemploymnet 
-ggplot(hate_crimedf, aes(x = gini_index, y = hate_crimes_per_100k_splc, colour = factor(unemployment))) +         
-  geom_point(size = 2) +                                                                     
-  geom_smooth(method = "lm", se = F,                                          
-              aes(group = factor(unemployment),                                  
-                  color = factor(unemployment))) +                                        
-  labs(title = "Scatterplot of Hate crime per 100k people vs. income equality by unemploymnet status", 
-       x = "gini index", y = "hate crime per 100k people") +
-  scale_color_manual(name = "Unemployment", labels = c("Low", "High"), values = c("blue", "red"))    
-reg1 <- lm(hate_crimes_per_100k_splc ~ gini_index*factor(unemployment), data = hate_crimedf)
-summary(reg1)
+ggplot(hate_crimedft,
+       aes(
+         x = gini_index,
+         y = ln_hate_crimes_per_100k_splc,
+         colour = factor(unemployment)
+       )) +
+  geom_point(size = 2) +
+  geom_smooth(method = "lm",
+              se = F,
+              aes(
+                group = factor(unemployment),
+                color = factor(unemployment)
+              )) +
+  labs(title = "ln(Hate crime per 100k) people vs. Unemployment Status",
+       x = "ln(gini index)", y = "ln(hate crime per 100k people)") +
+  scale_color_manual(
+    name = "Unemployment",
+    labels = c("Low", "High"),
+    values = c("blue", "red")
+  )
+reg1t <-
+  lm(ln_hate_crimes_per_100k_splc ~ gini_index * factor(unemployment),
+     data = hate_crimedft)
+summary(reg1t)
 ```
 
-There is no significant interaction at 5% significance level. The relationship between hate crime per 100k people and income equality does not vary bt unemployment status.
-Hence, stratified analysis is not included.
+There is no significant interaction at 5% significance level. The relationship between hate crime per 100k people and income equality does not vary by unemployment status.
 
-```{r, echo=FALSE, include=FALSE}
-#low employment 
-lowempdf <- filter(hate_crimedf, unemployment == "0") 
-lowempreg <- lm(hate_crimes_per_100k_splc ~ gini_index, data = lowempdf)
-summary(lowempreg)
-# high employment 
-highempdf <- filter(hate_crimedf, unemployment == "1") 
-highempreg <- lm(hate_crimes_per_100k_splc ~ gini_index, data = highempdf)
-summary(highempreg)
-```
 
 ##### Interaction between income equality and urbanization 
+
 ```{r}
 #Scatter plot - Hate_crime_per_100k_splc vs. gini index by urbanization 
-ggplot(hate_crimedf, aes(x = gini_index, y = hate_crimes_per_100k_splc, colour = factor(urbanization))) +         
+ggplot(hate_crimedft, aes(x =gini_index, y = ln_hate_crimes_per_100k_splc, colour = factor(urbanization))) +         
   geom_point(size = 2) +                                                                     
   geom_smooth(method = "lm", se = F,                                          
               aes(group = factor(urbanization),                                  
                   color = factor(urbanization))) +                                        
-  labs(title = "Scatterplot of Hate crime per 100k people vs. income equality by urbanization status", 
-       x = "gini index", y = "hate crime per 100k people") +
+  labs(title = "ln(Hate crime per 100k people) vs. income equality by urbanization status", 
+       x = "ln(gini index)", y = "ln(hate crime per 100k people)") +
   scale_color_manual(name = "Urbanization", labels = c("Low", "High"), values = c("blue", "red"))    
-reg2 <- lm(hate_crimes_per_100k_splc ~ gini_index*factor(urbanization), data = hate_crimedf)
-summary(reg2)
+reg2t <- lm(ln_hate_crimes_per_100k_splc ~ gini_index*factor(urbanization), data = hate_crimedft)
+summary(reg2t)
 ```
-
 There is no significant interaction at 5% significance level.The relationship between hate crime per 100k people and income equality does not vary by urbanization status.
-Hence, stratified analysis is not included.
 
-```{r, echo=FALSE, include=FALSE}
-#Stratified analysis
-#low urbanization
-lowurdf <- filter(hate_crimedf, urbanization == "0") 
-lowurreg <- lm(hate_crimes_per_100k_splc ~ gini_index, data = lowurdf)
-summary(lowurreg)
-#high urbanization 
-highurdf <- filter(hate_crimedf, urbanization == "1") 
-highurreg <- lm(hate_crimes_per_100k_splc ~ gini_index, data = highurdf)
-summary(highurreg)
+##### Interaction between education level and unemployment 
+```{r}
+ggplot(
+  hate_crimedft,
+  aes(
+    x = perc_population_with_high_school_degree,
+    y = ln_hate_crimes_per_100k_splc,
+    colour = factor(unemployment)
+  )
+) +
+  geom_point(size = 2) +
+  geom_smooth(method = "lm",
+              se = F,
+              aes(
+                group = factor(unemployment),
+                color = factor(unemployment)
+              )) +
+  labs(title = "Scatterplot of Hate crime per 100k people vs. income equality by unemploymnet status",
+       x = "ln(percentage of population with high school degree and higher)", y = "ln(hate crime per 100k people)") +
+  scale_color_manual(
+    name = "Unemployment",
+    labels = c("Low", "High"),
+    values = c("blue", "red")
+  )
+reg11t <-
+  lm(
+    ln_hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree * factor(unemployment),
+    data = hate_crimedft
+  )
+summary(reg11t)
 ```
 
-# Model diagnostics 
+There is no significant interaction at 5% significance level. The relationship between hate crime per 100k people and education level does not vary by unemployment status.
+
+##### Interaction between education level and urbanization 
+
+```{r}
+#Scatter plot - Hate_crime_per_100k_splc vs. education level by urbanization 
+ggplot(hate_crimedft, aes(x = perc_population_with_high_school_degree, y = ln_hate_crimes_per_100k_splc, colour = factor(urbanization))) +         
+  geom_point(size = 2) +                                                                     
+  geom_smooth(method = "lm", se = F,                                          
+              aes(group = factor(urbanization),                                  
+                  color = factor(urbanization))) +                                        
+  labs(title = "Scatterplot of Hate crime per 100k people vs. education level by urbanization status", 
+       x = "ln(percentage of population with high school degree or higher)", y = "ln(hate crime per 100k people)") +
+  scale_color_manual(name = "Urbanization", labels = c("Low", "High"), values = c("blue", "red"))    
+reg22t <- lm(ln_hate_crimes_per_100k_splc ~ perc_population_with_high_school_degree*factor(urbanization), data = hate_crimedft)
+summary(reg22t)
+```
+
+There is no significant interaction at 5% significance level.The relationship between hate crime per 100k people and education level does not vary by urbanization status.
+
+## Model diagnostics 
 
 Check model assumptions and goodness of fit (Vihar Desu)
 
@@ -429,15 +493,15 @@ plot(stepwise_log_fit)
 
 ```{r}
 hate_crime_no_dc = 
-  hate_crime[c(-9),] %>% 
-  dplyr::select(-state)
+  hate_crime[c(-9),]
 ```
 
 Fit the model without DC
 
 ```{r}
 
-step(hate_crime_no_dc, direction = "both")
+hate_crime_fit_no_dc = lm(log(hate_crimes_per_100k_splc) ~ . , data = hate_crime_no_dc)
+step(hate_crime_fit_no_dc, direction = "backward")
 
 stepwise_log_fit_no_dc = 
   lm(log(hate_crimes_per_100k_splc) ~ perc_population_with_high_school_degree + gini_index, 
