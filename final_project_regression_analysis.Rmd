@@ -201,7 +201,9 @@ After Plotting a scatter plot of the same values, it was evident that these stat
 ```{r}
 hate_crime %>%
   ggplot(aes(y = hate_crimes_per_100k_splc, x = state, colors = state)) + geom_point(aes(color = state)) +
-  geom_smooth(method = "lm", se = F, color = "red")
+  geom_smooth(method = "lm", se = F, color = "red") +
+  theme(axis.text.x = element_text(angle = 90),
+        legend.position = "none")
 ```
 
 
@@ -264,10 +266,10 @@ hate_crimedf = dplyr::select(hate_crime1,-1)
 is.na.data.frame(hate_crimedf)
 hate_crimedf = na.omit(hate_crimedf)
 #Convert to ln(x) transformation
-hate_crimedft= dplyr::select(hate_crime1,-1)
+hate_crimedft = dplyr::select(hate_crime1,-1)
 hate_crimedft = na.omit(hate_crimedft)
-hate_crimedft$hate_crimes_per_100k_splc=log2(hate_crimedft$hate_crimes_per_100k_splc)
-hate_crimedft$gini_index=log2(hate_crimedft$gini_index)
+hate_crimedft$hate_crimes_per_100k_splc = log2(hate_crimedft$hate_crimes_per_100k_splc)
+hate_crimedft$gini_index = log2(hate_crimedft$gini_index)
 ```
 
 ##### Interaction between income equality and unemployment 
